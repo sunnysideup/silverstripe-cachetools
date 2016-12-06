@@ -1,0 +1,1 @@
+http://joped.com/blog/2009/03/13/a-rant-about-proper-memcache-usage/
