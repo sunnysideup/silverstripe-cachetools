@@ -11,7 +11,7 @@
         "memcache",
         "apc",
         "opcache",
-        "apc"
+        "cache"
     ],
     "license": "Sunny Side Up (BSD-3-Clause and CUSTOM)",
     "authors": [
@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "silverstripe/framework": "~3.1",
+        "silverstripe/framework": "~3.1"
     },
     "extra": {
         "installer-name": "cachetools"
