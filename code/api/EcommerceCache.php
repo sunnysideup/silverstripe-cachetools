@@ -6,7 +6,6 @@
 
 class EcommerceCache extends Object implements flushable
 {
-
     private static $cache_in_mysql_tables = array(
     );
 
@@ -15,8 +14,8 @@ class EcommerceCache extends Object implements flushable
         $cache = SS_Cache::factory('any');
         $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
         $tables = Config::inst()->get('EcommerceCache', 'cache_in_mysql_tables');
-        if(is_array($tables)) {
-            foreach($tables as $table) {
+        if (is_array($tables)) {
+            foreach ($tables as $table) {
                 $table = self::make_mysql_table_name($table);
                 DB::query(
                     '
@@ -48,8 +47,8 @@ class EcommerceCache extends Object implements flushable
     public static function clean()
     {
         $tables = Config::inst()->get('EcommerceCache', 'cache_in_mysql_tables');
-        if(is_array($tables)) {
-            foreach($tables as $table) {
+        if (is_array($tables)) {
+            foreach ($tables as $table) {
                 $table = self::make_mysql_table_name($table);
                 DB::query(
                     '
@@ -71,13 +70,13 @@ class EcommerceCache extends Object implements flushable
     public static function load($table, $id, $cacheKey)
     {
         $tables = Config::inst()->get('EcommerceCache', 'cache_in_mysql_tables');
-        if(is_array($tables) && in_array($table, $tables)) {
+        if (is_array($tables) && in_array($table, $tables)) {
             $table = self::make_mysql_table_name($table);
             $id = (int)$id;
-            if(isset(self::$_items[$table])) {
-                if(isset(self::$_items[$table][$id])) {
-                    if(isset(self::$_items[$table][$id][$cacheKey])) {
-                        if(self::$_items[$table][$id][$cacheKey] !== null) {
+            if (isset(self::$_items[$table])) {
+                if (isset(self::$_items[$table][$id])) {
+                    if (isset(self::$_items[$table][$id][$cacheKey])) {
+                        if (self::$_items[$table][$id][$cacheKey] !== null) {
                             return @unserialize(self::$_items[$table][$id][$cacheKey]);
                         }
                     }
@@ -85,18 +84,18 @@ class EcommerceCache extends Object implements flushable
             }
 
             //we are now loading the data ...
-            if(!isset(self::$_items[$table])) {
+            if (!isset(self::$_items[$table])) {
                 self::$_items[$table] = array();
             }
-            if( ! isset(self::$_items[$table][$id])) {
+            if (! isset(self::$_items[$table][$id])) {
                 self::$_items[$table][$id] = array();
                 $rows = DB::query('SELECT "CACHEKEY", "DATA" FROM "'.$table.'" WHERE "PAGEID" = '.$id.' ;');
-                foreach($rows as $row) {
+                foreach ($rows as $row) {
                     self::$_items[$table][$id][$row['CACHEKEY']] = $row['DATA'];
                 }
                 //return the value, if there is one.
-                if(isset(self::$_items[$table][$id])) {
-                    if(isset(self::$_items[$table][$id][$cacheKey])) {
+                if (isset(self::$_items[$table][$id])) {
+                    if (isset(self::$_items[$table][$id][$cacheKey])) {
                         return @unserialize(self::$_items[$table][$id][$cacheKey]);
                     }
                 }
@@ -122,17 +121,17 @@ class EcommerceCache extends Object implements flushable
     public static function save($table, $id, $cacheKey, $data)
     {
         $tables = Config::inst()->get('EcommerceCache', 'cache_in_mysql_tables');
-        if(is_array($tables) && in_array($table, $tables)) {
+        if (is_array($tables) && in_array($table, $tables)) {
             $table = self::make_mysql_table_name($table);
             $id = (int)$id;
-            if(strlen($cacheKey) > 50) {
+            if (strlen($cacheKey) > 50) {
                 user_error('ERROR: CACHEKEY longer than 50 characters: '.$cacheKey);
             }
             $data = Convert::raw2sql(serialize($data));
-            if(!isset(self::$_items[$table])) {
+            if (!isset(self::$_items[$table])) {
                 self::$_items[$table] = array();
             }
-            if(isset(self::$_items[$table][$id])) {
+            if (isset(self::$_items[$table][$id])) {
                 self::$_items[$table][$id] = array();
             }
             self::$_items[$table][$id][$cacheKey] = $data;
@@ -164,5 +163,4 @@ class EcommerceCache extends Object implements flushable
     {
         return strtoupper($table). '_CACHE';
     }
-
 }

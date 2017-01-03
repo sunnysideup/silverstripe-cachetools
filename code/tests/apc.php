@@ -27,12 +27,14 @@ require_once('FindSSEnvironment.php');
 $VERSION='$Id: apc.php 325483 2012-05-01 00:34:04Z rasmus $';
 
 ////////// READ OPTIONAL CONFIGURATION FILE ////////////
-if (file_exists("apc.conf.php")) include("apc.conf.php");
+if (file_exists("apc.conf.php")) {
+    include("apc.conf.php");
+}
 ////////////////////////////////////////////////////////
 
 ////////// BEGIN OF DEFAULT CONFIG AREA ///////////////////////////////////////////////////////////
 
-defaults('USE_AUTHENTICATION',1);			// Use (internal) authentication - best choice if
+defaults('USE_AUTHENTICATION', 1);            // Use (internal) authentication - best choice if
                                             // no other authentication is available
                                             // If set to 0:
                                             //  There will be no further authentication. You
@@ -40,16 +42,16 @@ defaults('USE_AUTHENTICATION',1);			// Use (internal) authentication - best choi
                                             // If set to 1:
                                             //  You need to change ADMIN_PASSWORD to make
                                             //  this work!
-defaults('ADMIN_USERNAME',SS_DEFAULT_ADMIN_USERNAME); 			// Admin Username
-defaults('ADMIN_PASSWORD',SS_DEFAULT_ADMIN_PASSWORD);  	// Admin Password - CHANGE THIS TO ENABLE!!!
+defaults('ADMIN_USERNAME', SS_DEFAULT_ADMIN_USERNAME);            // Admin Username
+defaults('ADMIN_PASSWORD', SS_DEFAULT_ADMIN_PASSWORD);    // Admin Password - CHANGE THIS TO ENABLE!!!
 
 // (beckerr) I'm using a clear text password here, because I've no good idea how to let
 //           users generate a md5 or crypt password in a easy way to fill it in above
 
 //defaults('DATE_FORMAT', "d.m.Y H:i:s");	// German
-defaults('DATE_FORMAT', 'Y/m/d H:i:s'); 	// US
+defaults('DATE_FORMAT', 'Y/m/d H:i:s');    // US
 
-defaults('GRAPH_SIZE',200);					// Image size
+defaults('GRAPH_SIZE', 200);                    // Image size
 
 //defaults('PROXY', 'tcp://127.0.0.1:8080');
 
@@ -57,43 +59,48 @@ defaults('GRAPH_SIZE',200);					// Image size
 
 
 // "define if not defined"
-function defaults($d,$v) {
-    if (!defined($d)) define($d,$v); // or just @define(...)
+function defaults($d, $v)
+{
+    if (!defined($d)) {
+        define($d, $v);
+    } // or just @define(...)
 }
 
 // rewrite $PHP_SELF to block XSS attacks
 //
-$PHP_SELF= isset($_SERVER['PHP_SELF']) ? htmlentities(strip_tags($_SERVER['PHP_SELF'],''), ENT_QUOTES, 'UTF-8') : '';
+$PHP_SELF= isset($_SERVER['PHP_SELF']) ? htmlentities(strip_tags($_SERVER['PHP_SELF'], ''), ENT_QUOTES, 'UTF-8') : '';
 $time = time();
 $host = php_uname('n');
-if($host) { $host = '('.$host.')'; }
+if ($host) {
+    $host = '('.$host.')';
+}
 if (isset($_SERVER['SERVER_ADDR'])) {
-  $host .= ' ('.$_SERVER['SERVER_ADDR'].')';
+    $host .= ' ('.$_SERVER['SERVER_ADDR'].')';
 }
 
 // operation constants
-define('OB_HOST_STATS',1);
-define('OB_SYS_CACHE',2);
-define('OB_USER_CACHE',3);
-define('OB_SYS_CACHE_DIR',4);
-define('OB_VERSION_CHECK',9);
+define('OB_HOST_STATS', 1);
+define('OB_SYS_CACHE', 2);
+define('OB_USER_CACHE', 3);
+define('OB_SYS_CACHE_DIR', 4);
+define('OB_VERSION_CHECK', 9);
 
 // check validity of input variables
 $vardom=array(
-    'OB'	=> '/^\d+$/',			// operational mode switch
-    'CC'	=> '/^[01]$/',			// clear cache requested
-    'DU'	=> '/^.*$/',			// Delete User Key
-    'SH'	=> '/^[a-z0-9]+$/',		// shared object description
+    'OB'    => '/^\d+$/',            // operational mode switch
+    'CC'    => '/^[01]$/',            // clear cache requested
+    'DU'    => '/^.*$/',            // Delete User Key
+    'SH'    => '/^[a-z0-9]+$/',        // shared object description
 
-    'IMG'	=> '/^[123]$/',			// image to generate
-    'LO'	=> '/^1$/',				// login requested
+    'IMG'    => '/^[123]$/',            // image to generate
+    'LO'    => '/^1$/',                // login requested
 
-    'COUNT'	=> '/^\d+$/',			// number of line displayed in list
-    'SCOPE'	=> '/^[AD]$/',			// list view scope
-    'SORT1'	=> '/^[AHSMCDTZ]$/',	// first sort key
-    'SORT2'	=> '/^[DA]$/',			// second sort key
-    'AGGR'	=> '/^\d+$/',			// aggregation by dir level
-    'SEARCH'	=> '~^[a-zA-Z0-9/_.-]*$~'			// aggregation by dir level
+    'COUNT'    => '/^\d+$/',            // number of line displayed in list
+    'SCOPE'    => '/^[AD]$/',            // list view scope
+    'SORT1'    => '/^[AHSMCDTZ]$/',    // first sort key
+    'SORT2'    => '/^[DA]$/',            // second sort key
+    'AGGR'    => '/^\d+$/',            // aggregation by dir level
+    'SEARCH'    => '~^[a-zA-Z0-9/_.-]*$~'            // aggregation by dir level
 );
 
 // default cache mode
@@ -109,9 +116,9 @@ $scope_list=array(
 if (empty($_REQUEST)) {
     if (!empty($_GET) && !empty($_POST)) {
         $_REQUEST = array_merge($_GET, $_POST);
-    } else if (!empty($_GET)) {
+    } elseif (!empty($_GET)) {
         $_REQUEST = $_GET;
-    } else if (!empty($_POST)) {
+    } elseif (!empty($_POST)) {
         $_REQUEST = $_POST;
     } else {
         $_REQUEST = array();
@@ -119,23 +126,35 @@ if (empty($_REQUEST)) {
 }
 
 // check parameter syntax
-foreach($vardom as $var => $dom) {
+foreach ($vardom as $var => $dom) {
     if (!isset($_REQUEST[$var])) {
-        $MYREQUEST[$var]=NULL;
-    } else if (!is_array($_REQUEST[$var]) && preg_match($dom.'D',$_REQUEST[$var])) {
+        $MYREQUEST[$var]=null;
+    } elseif (!is_array($_REQUEST[$var]) && preg_match($dom.'D', $_REQUEST[$var])) {
         $MYREQUEST[$var]=$_REQUEST[$var];
     } else {
-        $MYREQUEST[$var]=$_REQUEST[$var]=NULL;
+        $MYREQUEST[$var]=$_REQUEST[$var]=null;
     }
 }
 
 // check parameter sematics
-if (empty($MYREQUEST['SCOPE'])) $MYREQUEST['SCOPE']="A";
-if (empty($MYREQUEST['SORT1'])) $MYREQUEST['SORT1']="H";
-if (empty($MYREQUEST['SORT2'])) $MYREQUEST['SORT2']="D";
-if (empty($MYREQUEST['OB']))	$MYREQUEST['OB']=OB_HOST_STATS;
-if (!isset($MYREQUEST['COUNT'])) $MYREQUEST['COUNT']=20;
-if (!isset($scope_list[$MYREQUEST['SCOPE']])) $MYREQUEST['SCOPE']='A';
+if (empty($MYREQUEST['SCOPE'])) {
+    $MYREQUEST['SCOPE']="A";
+}
+if (empty($MYREQUEST['SORT1'])) {
+    $MYREQUEST['SORT1']="H";
+}
+if (empty($MYREQUEST['SORT2'])) {
+    $MYREQUEST['SORT2']="D";
+}
+if (empty($MYREQUEST['OB'])) {
+    $MYREQUEST['OB']=OB_HOST_STATS;
+}
+if (!isset($MYREQUEST['COUNT'])) {
+    $MYREQUEST['COUNT']=20;
+}
+if (!isset($scope_list[$MYREQUEST['SCOPE']])) {
+    $MYREQUEST['SCOPE']='A';
+}
 
 $MY_SELF=
     "$PHP_SELF".
@@ -155,7 +174,6 @@ if (!USE_AUTHENTICATION) {
 } else {
     $AUTHENTICATED=0;
     if (ADMIN_PASSWORD!='password' && ($MYREQUEST['LO'] == 1 || isset($_SERVER['PHP_AUTH_USER']))) {
-
         if (!isset($_SERVER['PHP_AUTH_USER']) ||
             !isset($_SERVER['PHP_AUTH_PW']) ||
             $_SERVER['PHP_AUTH_USER'] != ADMIN_USERNAME ||
@@ -171,7 +189,6 @@ if (!USE_AUTHENTICATION) {
                 </body></html>
 EOB;
             exit;
-
         } else {
             $AUTHENTICATED=1;
         }
@@ -191,33 +208,68 @@ if ($AUTHENTICATED && !empty($MYREQUEST['DU'])) {
     apc_delete($MYREQUEST['DU']);
 }
 
-if(!function_exists('apc_cache_info') || !($cache=@apc_cache_info($cache_mode))) {
+if (!function_exists('apc_cache_info') || !($cache=@apc_cache_info($cache_mode))) {
     echo "No cache info available.  APC does not appear to be running.";
-  exit;
+    exit;
 }
 
 $cache_user = apc_cache_info('user', 1);
 $mem=apc_sma_info();
 
-if(!isset($cache['num_misses'])) {$cache['num_misses'] = 0;}
-if(!isset($cache['start_time'])) {$cache['start_time'] = 0;}
-if(!isset($cache['num_inserts'])) {$cache['num_inserts'] = 0;}
-if(!isset($cache['num_misses'])) {$cache['num_misses'] = 0;}
-if(!isset($cache['num_entries'])) {$cache['num_entries'] = 0;}
-if(!isset($cache['num_hits'])) {$cache['num_hits'] = 0;}
-if(!isset($cache['locking_type'])) {$cache['locking_type'] = 0;}
-if(!isset($cache['expunges'])) {$cache['expunges'] = 0;}
+if (!isset($cache['num_misses'])) {
+    $cache['num_misses'] = 0;
+}
+if (!isset($cache['start_time'])) {
+    $cache['start_time'] = 0;
+}
+if (!isset($cache['num_inserts'])) {
+    $cache['num_inserts'] = 0;
+}
+if (!isset($cache['num_misses'])) {
+    $cache['num_misses'] = 0;
+}
+if (!isset($cache['num_entries'])) {
+    $cache['num_entries'] = 0;
+}
+if (!isset($cache['num_hits'])) {
+    $cache['num_hits'] = 0;
+}
+if (!isset($cache['locking_type'])) {
+    $cache['locking_type'] = 0;
+}
+if (!isset($cache['expunges'])) {
+    $cache['expunges'] = 0;
+}
 
-if(!isset($cache_user['num_misses'])) {$cache_user['num_misses'] = 0;}
-if(!isset($cache_user['start_time'])) {$cache_user['start_time'] = 0;}
-if(!isset($cache_user['num_inserts'])) {$cache_user['num_inserts'] = 0;}
-if(!isset($cache_user['num_misses'])) {$cache_user['num_misses'] = 0;}
-if(!isset($cache_user['num_entries'])) {$cache_user['num_entries'] = 0;}
-if(!isset($cache_user['num_hits'])) {$cache_user['num_hits'] = 0;}
-if(!isset($cache_user['locking_type'])) {$cache_user['locking_type'] = 0;}
-if(!isset($cache_user['expunges'])) {$cache_user['expunges'] = 0;}
+if (!isset($cache_user['num_misses'])) {
+    $cache_user['num_misses'] = 0;
+}
+if (!isset($cache_user['start_time'])) {
+    $cache_user['start_time'] = 0;
+}
+if (!isset($cache_user['num_inserts'])) {
+    $cache_user['num_inserts'] = 0;
+}
+if (!isset($cache_user['num_misses'])) {
+    $cache_user['num_misses'] = 0;
+}
+if (!isset($cache_user['num_entries'])) {
+    $cache_user['num_entries'] = 0;
+}
+if (!isset($cache_user['num_hits'])) {
+    $cache_user['num_hits'] = 0;
+}
+if (!isset($cache_user['locking_type'])) {
+    $cache_user['locking_type'] = 0;
+}
+if (!isset($cache_user['expunges'])) {
+    $cache_user['expunges'] = 0;
+}
 
-if(empty($cache['num_hits'])) { $cache['num_hits']=1; $time++; }  // Avoid division by 0 errors on a cache clear
+if (empty($cache['num_hits'])) {
+    $cache['num_hits']=1;
+    $time++;
+}  // Avoid division by 0 errors on a cache clear
 
 // don't cache this page
 //
@@ -225,7 +277,8 @@ header("Cache-Control: no-store, no-cache, must-revalidate");  // HTTP/1.1
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");                                    // HTTP/1.0
 
-function duration($ts) {
+function duration($ts)
+{
     global $time;
     $years = (int)((($time - $ts)/(7*86400))/52.177457);
     $rem = (int)(($time-$ts)-($years * 52.177457 * 7 * 86400));
@@ -234,31 +287,51 @@ function duration($ts) {
     $hours = (int)(($rem)/3600) - $days*24 - $weeks*7*24;
     $mins = (int)(($rem)/60) - $hours*60 - $days*24*60 - $weeks*7*24*60;
     $str = '';
-    if($years==1) $str .= "$years year, ";
-    if($years>1) $str .= "$years years, ";
-    if($weeks==1) $str .= "$weeks week, ";
-    if($weeks>1) $str .= "$weeks weeks, ";
-    if($days==1) $str .= "$days day,";
-    if($days>1) $str .= "$days days,";
-    if($hours == 1) $str .= " $hours hour and";
-    if($hours>1) $str .= " $hours hours and";
-    if($mins == 1) $str .= " 1 minute";
-    else $str .= " $mins minutes";
+    if ($years==1) {
+        $str .= "$years year, ";
+    }
+    if ($years>1) {
+        $str .= "$years years, ";
+    }
+    if ($weeks==1) {
+        $str .= "$weeks week, ";
+    }
+    if ($weeks>1) {
+        $str .= "$weeks weeks, ";
+    }
+    if ($days==1) {
+        $str .= "$days day,";
+    }
+    if ($days>1) {
+        $str .= "$days days,";
+    }
+    if ($hours == 1) {
+        $str .= " $hours hour and";
+    }
+    if ($hours>1) {
+        $str .= " $hours hours and";
+    }
+    if ($mins == 1) {
+        $str .= " 1 minute";
+    } else {
+        $str .= " $mins minutes";
+    }
     return $str;
 }
 
 // create graphics
 //
-function graphics_avail() {
+function graphics_avail()
+{
     return extension_loaded('gd');
 }
-if (isset($MYREQUEST['IMG']))
-{
+if (isset($MYREQUEST['IMG'])) {
     if (!graphics_avail()) {
         exit(0);
     }
 
-    function fill_arc($im, $centerX, $centerY, $diameter, $start, $end, $color1,$color2,$text='',$placeindex=0) {
+    function fill_arc($im, $centerX, $centerY, $diameter, $start, $end, $color1, $color2, $text='', $placeindex=0)
+    {
         $r=$diameter/2;
         $w=deg2rad((360+$start+($end-$start)/2)%360);
 
@@ -274,52 +347,52 @@ if (isset($MYREQUEST['IMG']))
             imageline($im, $centerX, $centerY, $centerX + cos(deg2rad($start+1)) * $r, $centerY + sin(deg2rad($start)) * $r, $color2);
             imageline($im, $centerX, $centerY, $centerX + cos(deg2rad($end-1))   * $r, $centerY + sin(deg2rad($end))   * $r, $color2);
             imageline($im, $centerX, $centerY, $centerX + cos(deg2rad($end))   * $r, $centerY + sin(deg2rad($end))   * $r, $color2);
-            imagefill($im,$centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $color2);
+            imagefill($im, $centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $color2);
         }
         if ($text) {
             if ($placeindex>0) {
-                imageline($im,$centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2,$diameter, $placeindex*12,$color1);
-                imagestring($im,4,$diameter, $placeindex*12,$text,$color1);
-
+                imageline($im, $centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $diameter, $placeindex*12, $color1);
+                imagestring($im, 4, $diameter, $placeindex*12, $text, $color1);
             } else {
-                imagestring($im,4,$centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2,$text,$color1);
+                imagestring($im, 4, $centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $text, $color1);
             }
         }
     }
 
-    function text_arc($im, $centerX, $centerY, $diameter, $start, $end, $color1,$text,$placeindex=0) {
+    function text_arc($im, $centerX, $centerY, $diameter, $start, $end, $color1, $text, $placeindex=0)
+    {
         $r=$diameter/2;
         $w=deg2rad((360+$start+($end-$start)/2)%360);
 
         if ($placeindex>0) {
-            imageline($im,$centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2,$diameter, $placeindex*12,$color1);
-            imagestring($im,4,$diameter, $placeindex*12,$text,$color1);
-
+            imageline($im, $centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $diameter, $placeindex*12, $color1);
+            imagestring($im, 4, $diameter, $placeindex*12, $text, $color1);
         } else {
-            imagestring($im,4,$centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2,$text,$color1);
+            imagestring($im, 4, $centerX + $r*cos($w)/2, $centerY + $r*sin($w)/2, $text, $color1);
         }
     }
 
-    function fill_box($im, $x, $y, $w, $h, $color1, $color2,$text='',$placeindex='') {
+    function fill_box($im, $x, $y, $w, $h, $color1, $color2, $text='', $placeindex='')
+    {
         global $col_black;
         $x1=$x+$w-1;
         $y1=$y+$h-1;
 
         imagerectangle($im, $x, $y1, $x1+1, $y+1, $col_black);
-        if($y1>$y) imagefilledrectangle($im, $x, $y, $x1, $y1, $color2);
-        else imagefilledrectangle($im, $x, $y1, $x1, $y, $color2);
+        if ($y1>$y) {
+            imagefilledrectangle($im, $x, $y, $x1, $y1, $color2);
+        } else {
+            imagefilledrectangle($im, $x, $y1, $x1, $y, $color2);
+        }
         imagerectangle($im, $x, $y1, $x1, $y, $color1);
         if ($text) {
             if ($placeindex>0) {
-
-                if ($placeindex<16)
-                {
+                if ($placeindex<16) {
                     $px=5;
                     $py=$placeindex*12+6;
                     imagefilledrectangle($im, $px+90, $py+3, $px+90-4, $py-3, $color2);
-                    imageline($im,$x,$y+$h/2,$px+90,$py,$color2);
-                    imagestring($im,2,$px,$py-6,$text,$color1);
-
+                    imageline($im, $x, $y+$h/2, $px+90, $py, $color2);
+                    imagestring($im, 2, $px, $py-6, $text, $color1);
                 } else {
                     if ($placeindex<31) {
                         $px=$x+40*2;
@@ -329,27 +402,28 @@ if (isset($MYREQUEST['IMG']))
                         $py=($placeindex%15)*12+6;
                     }
                     imagefilledrectangle($im, $px, $py+3, $px-4, $py-3, $color2);
-                    imageline($im,$x+$w,$y+$h/2,$px,$py,$color2);
-                    imagestring($im,2,$px+2,$py-6,$text,$color1);
+                    imageline($im, $x+$w, $y+$h/2, $px, $py, $color2);
+                    imagestring($im, 2, $px+2, $py-6, $text, $color1);
                 }
             } else {
-                imagestring($im,4,$x+5,$y1-16,$text,$color1);
+                imagestring($im, 4, $x+5, $y1-16, $text, $color1);
             }
         }
     }
 
 
     $size = GRAPH_SIZE; // image size
-    if ($MYREQUEST['IMG']==3)
+    if ($MYREQUEST['IMG']==3) {
         $image = imagecreate(2*$size+150, $size+10);
-    else
+    } else {
         $image = imagecreate($size+50, $size+10);
+    }
 
     $col_white = imagecolorallocate($image, 0xFF, 0xFF, 0xFF);
     $col_red   = imagecolorallocate($image, 0xD0, 0x60,  0x30);
     $col_green = imagecolorallocate($image, 0x60, 0xF0, 0x60);
     $col_black = imagecolorallocate($image,   0,   0,   0);
-    imagecolortransparent($image,$col_white);
+    imagecolortransparent($image, $col_white);
 
     switch ($MYREQUEST['IMG']) {
 
@@ -363,28 +437,32 @@ if (isset($MYREQUEST['IMG']))
         // would expect because we try to visualize any memory fragmentation as well.
         $angle_from = 0;
         $string_placement=array();
-        for($i=0; $i<$mem['num_seg']; $i++) {
+        for ($i=0; $i<$mem['num_seg']; $i++) {
             $ptr = 0;
             $free = $mem['block_lists'][$i];
             uasort($free, 'block_sort');
-            foreach($free as $block) {
-                if($block['offset']!=$ptr) {       // Used block
+            foreach ($free as $block) {
+                if ($block['offset']!=$ptr) {       // Used block
                     $angle_to = $angle_from+($block['offset']-$ptr)/$s;
-                    if(($angle_to+$fuzz)>1) $angle_to = 1;
-                    if( ($angle_to*360) - ($angle_from*360) >= 1) {
-                        fill_arc($image,$x,$y,$size,$angle_from*360,$angle_to*360,$col_black,$col_red);
+                    if (($angle_to+$fuzz)>1) {
+                        $angle_to = 1;
+                    }
+                    if (($angle_to*360) - ($angle_from*360) >= 1) {
+                        fill_arc($image, $x, $y, $size, $angle_from*360, $angle_to*360, $col_black, $col_red);
                         if (($angle_to-$angle_from)>0.05) {
-                            array_push($string_placement, array($angle_from,$angle_to));
+                            array_push($string_placement, array($angle_from, $angle_to));
                         }
                     }
                     $angle_from = $angle_to;
                 }
                 $angle_to = $angle_from+($block['size'])/$s;
-                if(($angle_to+$fuzz)>1) $angle_to = 1;
-                if( ($angle_to*360) - ($angle_from*360) >= 1) {
-                    fill_arc($image,$x,$y,$size,$angle_from*360,$angle_to*360,$col_black,$col_green);
+                if (($angle_to+$fuzz)>1) {
+                    $angle_to = 1;
+                }
+                if (($angle_to*360) - ($angle_from*360) >= 1) {
+                    fill_arc($image, $x, $y, $size, $angle_from*360, $angle_to*360, $col_black, $col_green);
                     if (($angle_to-$angle_from)>0.05) {
-                        array_push($string_placement, array($angle_from,$angle_to));
+                        array_push($string_placement, array($angle_from, $angle_to));
                     }
                 }
                 $angle_from = $angle_to;
@@ -392,15 +470,17 @@ if (isset($MYREQUEST['IMG']))
             }
             if ($ptr < $mem['seg_size']) { // memory at the end
                 $angle_to = $angle_from + ($mem['seg_size'] - $ptr)/$s;
-                if(($angle_to+$fuzz)>1) $angle_to = 1;
-                fill_arc($image,$x,$y,$size,$angle_from*360,$angle_to*360,$col_black,$col_red);
+                if (($angle_to+$fuzz)>1) {
+                    $angle_to = 1;
+                }
+                fill_arc($image, $x, $y, $size, $angle_from*360, $angle_to*360, $col_black, $col_red);
                 if (($angle_to-$angle_from)>0.05) {
-                    array_push($string_placement, array($angle_from,$angle_to));
+                    array_push($string_placement, array($angle_from, $angle_to));
                 }
             }
         }
         foreach ($string_placement as $angle) {
-            text_arc($image,$x,$y,$size,$angle[0]*360,$angle[1]*360,$col_black,bsize($s*($angle[1]-$angle[0])));
+            text_arc($image, $x, $y, $size, $angle[0]*360, $angle[1]*360, $col_black, bsize($s*($angle[1]-$angle[0])));
         }
         break;
 
@@ -408,8 +488,8 @@ if (isset($MYREQUEST['IMG']))
         $s=$cache['num_hits']+$cache['num_misses'];
         $a=$cache['num_hits'];
 
-        fill_box($image, 30,$size,50,-$a*($size-21)/$s,$col_black,$col_green,sprintf("%.1f%%",$cache['num_hits']*100/$s));
-        fill_box($image,130,$size,50,-max(4,($s-$a)*($size-21)/$s),$col_black,$col_red,sprintf("%.1f%%",$cache['num_misses']*100/$s));
+        fill_box($image, 30, $size, 50, -$a*($size-21)/$s, $col_black, $col_green, sprintf("%.1f%%", $cache['num_hits']*100/$s));
+        fill_box($image, 130, $size, 50, -max(4, ($s-$a)*($size-21)/$s), $col_black, $col_red, sprintf("%.1f%%", $cache['num_misses']*100/$s));
         break;
 
     case 3:
@@ -421,33 +501,39 @@ if (isset($MYREQUEST['IMG']))
 
         // This block of code creates the bar chart.  It is a lot more complex than you
         // would expect because we try to visualize any memory fragmentation as well.
-        for($i=0; $i<$mem['num_seg']; $i++) {
+        for ($i=0; $i<$mem['num_seg']; $i++) {
             $ptr = 0;
             $free = $mem['block_lists'][$i];
             uasort($free, 'block_sort');
-            foreach($free as $block) {
-                if($block['offset']!=$ptr) {       // Used block
+            foreach ($free as $block) {
+                if ($block['offset']!=$ptr) {       // Used block
                     $h=(GRAPH_SIZE-5)*($block['offset']-$ptr)/$s;
                     if ($h>0) {
-                                                $j++;
-                        if($j<75) fill_box($image,$x,$y,50,$h,$col_black,$col_red,bsize($block['offset']-$ptr),$j);
-                                                else fill_box($image,$x,$y,50,$h,$col_black,$col_red);
-                                        }
+                        $j++;
+                        if ($j<75) {
+                            fill_box($image, $x, $y, 50, $h, $col_black, $col_red, bsize($block['offset']-$ptr), $j);
+                        } else {
+                            fill_box($image, $x, $y, 50, $h, $col_black, $col_red);
+                        }
+                    }
                     $y+=$h;
                 }
                 $h=(GRAPH_SIZE-5)*($block['size'])/$s;
                 if ($h>0) {
-                                        $j++;
-                    if($j<75) fill_box($image,$x,$y,50,$h,$col_black,$col_green,bsize($block['size']),$j);
-                    else fill_box($image,$x,$y,50,$h,$col_black,$col_green);
-                                }
+                    $j++;
+                    if ($j<75) {
+                        fill_box($image, $x, $y, 50, $h, $col_black, $col_green, bsize($block['size']), $j);
+                    } else {
+                        fill_box($image, $x, $y, 50, $h, $col_black, $col_green);
+                    }
+                }
                 $y+=$h;
                 $ptr = $block['offset']+$block['size'];
             }
             if ($ptr < $mem['seg_size']) { // memory at the end
                 $h = (GRAPH_SIZE-5) * ($mem['seg_size'] - $ptr) / $s;
                 if ($h > 0) {
-                    fill_box($image,$x,$y,50,$h,$col_black,$col_red,bsize($mem['seg_size']-$ptr),$j++);
+                    fill_box($image, $x, $y, 50, $h, $col_black, $col_red, bsize($mem['seg_size']-$ptr), $j++);
                 }
             }
         }
@@ -456,8 +542,8 @@ if (isset($MYREQUEST['IMG']))
         $s=$cache['num_hits']+$cache['num_misses'];
         $a=$cache['num_hits'];
 
-        fill_box($image, 30,$size,50,-$a*($size-21)/$s,$col_black,$col_green,sprintf("%.1f%%",$cache['num_hits']*100/$s));
-        fill_box($image,130,$size,50,-max(4,($s-$a)*($size-21)/$s),$col_black,$col_red,sprintf("%.1f%%",$cache['num_misses']*100/$s));
+        fill_box($image, 30, $size, 50, -$a*($size-21)/$s, $col_black, $col_green, sprintf("%.1f%%", $cache['num_hits']*100/$s));
+        fill_box($image, 130, $size, 50, -max(4, ($s-$a)*($size-21)/$s), $col_black, $col_red, sprintf("%.1f%%", $cache['num_misses']*100/$s));
         break;
 
     }
@@ -468,31 +554,35 @@ if (isset($MYREQUEST['IMG']))
 
 // pretty printer for byte values
 //
-function bsize($s) {
-    foreach (array('','K','M','G') as $i => $k) {
-        if ($s < 1024) break;
+function bsize($s)
+{
+    foreach (array('', 'K', 'M', 'G') as $i => $k) {
+        if ($s < 1024) {
+            break;
+        }
         $s/=1024;
     }
-    return sprintf("%5.1f %sBytes",$s,$k);
+    return sprintf("%5.1f %sBytes", $s, $k);
 }
 
 // sortable table header in "scripts for this host" view
-function sortheader($key,$name,$extra='') {
+function sortheader($key, $name, $extra='')
+{
     global $MYREQUEST, $MY_SELF_WO_SORT;
 
     if ($MYREQUEST['SORT1']==$key) {
         $MYREQUEST['SORT2'] = $MYREQUEST['SORT2']=='A' ? 'D' : 'A';
     }
     return "<a class=sortable href=\"$MY_SELF_WO_SORT$extra&SORT1=$key&SORT2=".$MYREQUEST['SORT2']."\">$name</a>";
-
 }
 
 // create menu entry
-function menu_entry($ob,$title) {
+function menu_entry($ob, $title)
+{
     global $MYREQUEST,$MY_SELF;
     if ($MYREQUEST['OB']!=$ob) {
         return "<li><a href=\"$MY_SELF&OB=$ob\">$title</a></li>";
-    } else if (empty($MYREQUEST['SH'])) {
+    } elseif (empty($MYREQUEST['SH'])) {
         return "<li><span class=active>$title</span></li>";
     } else {
         return "<li><a class=\"child_active\" href=\"$MY_SELF&OB=$ob\">$title</a></li>";
@@ -506,16 +596,15 @@ function put_login_link($s="Login")
     //
     if (!USE_AUTHENTICATION) {
         return;
-    } else if (ADMIN_PASSWORD=='password')
-    {
+    } elseif (ADMIN_PASSWORD=='password') {
         print <<<EOB
             <a href="#" onClick="javascript:alert('You need to set a password at the top of apc.php before this will work!');return false";>$s</a>
 EOB;
-    } else if ($AUTHENTICATED) {
+    } elseif ($AUTHENTICATED) {
         print <<<EOB
             '{$_SERVER['PHP_AUTH_USER']}'&nbsp;logged&nbsp;in!
 EOB;
-    } else{
+    } else {
         print <<<EOB
             <a href="$MY_SELF&LO=1&OB={$MYREQUEST['OB']}">$s</a>
 EOB;
@@ -753,14 +842,14 @@ echo <<<EOB
     <li><a href="$MY_SELF&OB={$MYREQUEST['OB']}&SH={$MYREQUEST['SH']}">Refresh Data</a></li>
 EOB;
 echo
-    menu_entry(1,'View Host Stats'),
-    menu_entry(2,'System Cache Entries');
+    menu_entry(1, 'View Host Stats'),
+    menu_entry(2, 'System Cache Entries');
 if ($AUTHENTICATED) {
-    echo menu_entry(4,'Per-Directory Entries');
+    echo menu_entry(4, 'Per-Directory Entries');
 }
 echo
-    menu_entry(3,'User Cache Entries'),
-    menu_entry(9,'Version Check');
+    menu_entry(3, 'User Cache Entries'),
+    menu_entry(9, 'Version Check');
 
 if ($AUTHENTICATED) {
     echo <<<EOB
@@ -793,14 +882,14 @@ case OB_HOST_STATS:
     $mem_avail= $mem['avail_mem'];
     $mem_used = $mem_size-$mem_avail;
     $seg_size = bsize($mem['seg_size']);
-    $req_rate = sprintf("%.2f",($cache['num_hits']+$cache['num_misses'])/($time-$cache['start_time']));
-    $hit_rate = sprintf("%.2f",($cache['num_hits'])/($time-$cache['start_time']));
-    $miss_rate = sprintf("%.2f",($cache['num_misses'])/($time-$cache['start_time']));
-    $insert_rate = sprintf("%.2f",($cache['num_inserts'])/($time-$cache['start_time']));
-    $req_rate_user = sprintf("%.2f",($cache_user['num_hits']+$cache_user['num_misses'])/($time-$cache_user['start_time']));
-    $hit_rate_user = sprintf("%.2f",($cache_user['num_hits'])/($time-$cache_user['start_time']));
-    $miss_rate_user = sprintf("%.2f",($cache_user['num_misses'])/($time-$cache_user['start_time']));
-    $insert_rate_user = sprintf("%.2f",($cache_user['num_inserts'])/($time-$cache_user['start_time']));
+    $req_rate = sprintf("%.2f", ($cache['num_hits']+$cache['num_misses'])/($time-$cache['start_time']));
+    $hit_rate = sprintf("%.2f", ($cache['num_hits'])/($time-$cache['start_time']));
+    $miss_rate = sprintf("%.2f", ($cache['num_misses'])/($time-$cache['start_time']));
+    $insert_rate = sprintf("%.2f", ($cache['num_inserts'])/($time-$cache['start_time']));
+    $req_rate_user = sprintf("%.2f", ($cache_user['num_hits']+$cache_user['num_misses'])/($time-$cache_user['start_time']));
+    $hit_rate_user = sprintf("%.2f", ($cache_user['num_hits'])/($time-$cache_user['start_time']));
+    $miss_rate_user = sprintf("%.2f", ($cache_user['num_misses'])/($time-$cache_user['start_time']));
+    $insert_rate_user = sprintf("%.2f", ($cache_user['num_inserts'])/($time-$cache_user['start_time']));
     $apcversion = phpversion('apc');
     $phpversion = phpversion();
     $number_files = $cache['num_entries'];
@@ -815,17 +904,19 @@ case OB_HOST_STATS:
         <tr class=tr-1><td class=td-0>PHP Version</td><td>$phpversion</td></tr>
 EOB;
 
-    if(!empty($_SERVER['SERVER_NAME']))
+    if (!empty($_SERVER['SERVER_NAME'])) {
         echo "<tr class=tr-0><td class=td-0>APC Host</td><td>{$_SERVER['SERVER_NAME']} $host</td></tr>\n";
-    if(!empty($_SERVER['SERVER_SOFTWARE']))
+    }
+    if (!empty($_SERVER['SERVER_SOFTWARE'])) {
         echo "<tr class=tr-1><td class=td-0>Server Software</td><td>{$_SERVER['SERVER_SOFTWARE']}</td></tr>\n";
+    }
 
     echo <<<EOB
         <tr class=tr-0><td class=td-0>Shared Memory</td><td>{$mem['num_seg']} Segment(s) with $seg_size
     <br/> ({$cache['memory_type']} memory, {$cache['locking_type']} locking)
     </td></tr>
 EOB;
-    echo   '<tr class=tr-1><td class=td-0>Start Time</td><td>',date(DATE_FORMAT,$cache['start_time']),'</td></tr>';
+    echo   '<tr class=tr-1><td class=td-0>Start Time</td><td>',date(DATE_FORMAT, $cache['start_time']),'</td></tr>';
     echo   '<tr class=tr-0><td class=td-0>Uptime</td><td>',duration($cache['start_time']),'</td></tr>';
     echo   '<tr class=tr-1><td class=td-0>File Upload Support</td><td>',$cache['file_upload_progress'],'</td></tr>';
     echo <<<EOB
@@ -864,14 +955,15 @@ EOB;
 
     $j = 0;
     foreach (ini_get_all('apc') as $k => $v) {
-        echo "<tr class=tr-$j><td class=td-0>",$k,"</td><td>",str_replace(',',',<br />',$v['local_value']),"</td></tr>\n";
+        echo "<tr class=tr-$j><td class=td-0>",$k,"</td><td>",str_replace(',', ',<br />', $v['local_value']),"</td></tr>\n";
         $j = 1 - $j;
     }
 
-    if($mem['num_seg']>1 || $mem['num_seg']==1 && count($mem['block_lists'][0])>1)
+    if ($mem['num_seg']>1 || $mem['num_seg']==1 && count($mem['block_lists'][0])>1) {
         $mem_note = "Memory Usage<br /><font size=-2>(multiple slices indicate fragments)</font>";
-    else
+    } else {
         $mem_note = "Memory Usage";
+    }
 
     echo <<< EOB
         </tbody></table>
@@ -895,12 +987,12 @@ EOB;
               "<td class=td-1><img alt=\"\" $size src=\"$PHP_SELF?IMG=2&$time\"></td></tr>\n"
             : "",
         '<tr>',
-        '<td class=td-0><span class="green box">&nbsp;</span>Free: ',bsize($mem_avail).sprintf(" (%.1f%%)",$mem_avail*100/$mem_size),"</td>\n",
-        '<td class=td-1><span class="green box">&nbsp;</span>Hits: ',$cache['num_hits'].sprintf(" (%.1f%%)",$cache['num_hits']*100/($cache['num_hits']+$cache['num_misses'])),"</td>\n",
+        '<td class=td-0><span class="green box">&nbsp;</span>Free: ',bsize($mem_avail).sprintf(" (%.1f%%)", $mem_avail*100/$mem_size),"</td>\n",
+        '<td class=td-1><span class="green box">&nbsp;</span>Hits: ',$cache['num_hits'].sprintf(" (%.1f%%)", $cache['num_hits']*100/($cache['num_hits']+$cache['num_misses'])),"</td>\n",
         '</tr>',
         '<tr>',
-        '<td class=td-0><span class="red box">&nbsp;</span>Used: ',bsize($mem_used ).sprintf(" (%.1f%%)",$mem_used *100/$mem_size),"</td>\n",
-        '<td class=td-1><span class="red box">&nbsp;</span>Misses: ',$cache['num_misses'].sprintf(" (%.1f%%)",$cache['num_misses']*100/($cache['num_hits']+$cache['num_misses'])),"</td>\n";
+        '<td class=td-0><span class="red box">&nbsp;</span>Used: ',bsize($mem_used).sprintf(" (%.1f%%)", $mem_used *100/$mem_size),"</td>\n",
+        '<td class=td-1><span class="red box">&nbsp;</span>Misses: ',$cache['num_misses'].sprintf(" (%.1f%%)", $cache['num_misses']*100/($cache['num_hits']+$cache['num_misses'])),"</td>\n";
     echo <<< EOB
         </tr>
         </tbody></table>
@@ -914,22 +1006,24 @@ EOB;
 
     // Fragementation: (freeseg - 1) / total_seg
     $nseg = $freeseg = $fragsize = $freetotal = 0;
-    for($i=0; $i<$mem['num_seg']; $i++) {
+    for ($i=0; $i<$mem['num_seg']; $i++) {
         $ptr = 0;
-        foreach($mem['block_lists'][$i] as $block) {
+        foreach ($mem['block_lists'][$i] as $block) {
             if ($block['offset'] != $ptr) {
                 ++$nseg;
             }
             $ptr = $block['offset'] + $block['size'];
                         /* Only consider blocks <5M for the fragmentation % */
-                        if($block['size']<(5*1024*1024)) $fragsize+=$block['size'];
-                        $freetotal+=$block['size'];
+                        if ($block['size']<(5*1024*1024)) {
+                            $fragsize+=$block['size'];
+                        }
+            $freetotal+=$block['size'];
         }
         $freeseg += count($mem['block_lists'][$i]);
     }
 
     if ($freeseg > 1) {
-        $frag = sprintf("%.2f%% (%s out of %s in %d fragments)", ($fragsize/$freetotal)*100,bsize($fragsize),bsize($freetotal),$freeseg);
+        $frag = sprintf("%.2f%% (%s out of %s in %d fragments)", ($fragsize/$freetotal)*100, bsize($fragsize), bsize($freetotal), $freeseg);
     } else {
         $frag = "0%";
     }
@@ -945,13 +1039,17 @@ EOB;
         </td>
         </tr>
 EOB;
-        if(isset($mem['adist'])) {
-          foreach($mem['adist'] as $i=>$v) {
-            $cur = pow(2,$i); $nxt = pow(2,$i+1)-1;
-            if($i==0) $range = "1";
-            else $range = "$cur - $nxt";
-            echo "<tr><th align=right>$range</th><td align=right>$v</td></tr>\n";
-          }
+        if (isset($mem['adist'])) {
+            foreach ($mem['adist'] as $i=>$v) {
+                $cur = pow(2, $i);
+                $nxt = pow(2, $i+1)-1;
+                if ($i==0) {
+                    $range = "1";
+                } else {
+                    $range = "$cur - $nxt";
+                }
+                echo "<tr><th align=right>$range</th><td align=right>$v</td></tr>\n";
+            }
         }
         echo <<<EOB
         </tbody></table>
@@ -966,7 +1064,7 @@ EOB;
 // -----------------------------------------------
 case OB_USER_CACHE:
     if (!$AUTHENTICATED) {
-    echo '<div class="error">You need to login to see the user values here!<br/>&nbsp;<br/>';
+        echo '<div class="error">You need to login to see the user values here!<br/>&nbsp;<br/>';
         put_login_link("Login now!");
         echo '</div>';
         break;
@@ -979,46 +1077,51 @@ case OB_USER_CACHE:
 // System Cache Entries
 // -----------------------------------------------
 case OB_SYS_CACHE:
-    if (!isset($fieldname))
-    {
+    if (!isset($fieldname)) {
         $fieldname='filename';
         $fieldheading='Script Filename';
-        if(ini_get("apc.stat")) $fieldkey='inode';
-        else $fieldkey='filename';
+        if (ini_get("apc.stat")) {
+            $fieldkey='inode';
+        } else {
+            $fieldkey='filename';
+        }
     }
-    if (!empty($MYREQUEST['SH']))
-    {
+    if (!empty($MYREQUEST['SH'])) {
         echo <<< EOB
             <div class="info"><table cellspacing=0><tbody>
             <tr><th>Attribute</th><th>Value</th></tr>
 EOB;
 
         $m=0;
-        foreach($scope_list as $j => $list) {
-            foreach($cache[$list] as $i => $entry) {
-                if (md5($entry[$fieldkey])!=$MYREQUEST['SH']) continue;
-                foreach($entry as $k => $value) {
+        foreach ($scope_list as $j => $list) {
+            foreach ($cache[$list] as $i => $entry) {
+                if (md5($entry[$fieldkey])!=$MYREQUEST['SH']) {
+                    continue;
+                }
+                foreach ($entry as $k => $value) {
                     if (!$AUTHENTICATED) {
                         // hide all path entries if not logged in
-                        $value=preg_replace('/^.*(\\/|\\\\)/','<i>&lt;hidden&gt;</i>/',$value);
+                        $value=preg_replace('/^.*(\\/|\\\\)/', '<i>&lt;hidden&gt;</i>/', $value);
                     }
 
                     if ($k == "num_hits") {
-                        $value=sprintf("%s (%.2f%%)",$value,$value*100/$cache['num_hits']);
+                        $value=sprintf("%s (%.2f%%)", $value, $value*100/$cache['num_hits']);
                     }
                     if ($k == 'deletion_time') {
-                        if(!$entry['deletion_time']) $value = "None";
+                        if (!$entry['deletion_time']) {
+                            $value = "None";
+                        }
                     }
                     echo
                         "<tr class=tr-$m>",
-                        "<td class=td-0>",ucwords(preg_replace("/_/"," ",$k)),"</td>",
-                        "<td class=td-last>",(preg_match("/time/",$k) && $value!='None') ? date(DATE_FORMAT,$value) : htmlspecialchars($value, ENT_QUOTES, 'UTF-8'),"</td>",
+                        "<td class=td-0>",ucwords(preg_replace("/_/", " ", $k)),"</td>",
+                        "<td class=td-last>",(preg_match("/time/", $k) && $value!='None') ? date(DATE_FORMAT, $value) : htmlspecialchars($value, ENT_QUOTES, 'UTF-8'),"</td>",
                         "</tr>";
                     $m=1-$m;
                 }
-                if($fieldkey=='info') {
+                if ($fieldkey=='info') {
                     echo "<tr class=tr-$m><td class=td-0>Stored Value</td><td class=td-last><pre>";
-                    $output = var_export(apc_fetch($entry[$fieldkey]),true);
+                    $output = var_export(apc_fetch($entry[$fieldkey]), true);
                     echo htmlspecialchars($output, ENT_QUOTES, 'UTF-8');
                     echo "</pre></td></tr>\n";
                 }
@@ -1051,8 +1154,10 @@ EOB;
         "<option value=M",$MYREQUEST['SORT1']=='M' ? " selected":"",">Last modified</option>",
         "<option value=C",$MYREQUEST['SORT1']=='C' ? " selected":"",">Created at</option>",
         "<option value=D",$MYREQUEST['SORT1']=='D' ? " selected":"",">Deleted at</option>";
-    if($fieldname=='info') echo
+    if ($fieldname=='info') {
+        echo
         "<option value=D",$MYREQUEST['SORT1']=='T' ? " selected":"",">Timeout</option>";
+    }
     echo
         '</select>',
         '<select name=SORT2>',
@@ -1074,48 +1179,48 @@ EOB;
         '</form></div>';
 
   if (isset($MYREQUEST['SEARCH'])) {
-   // Don't use preg_quote because we want the user to be able to specify a
+      // Don't use preg_quote because we want the user to be able to specify a
    // regular expression subpattern.
    $MYREQUEST['SEARCH'] = '/'.str_replace('/', '\\/', $MYREQUEST['SEARCH']).'/i';
-   if (preg_match($MYREQUEST['SEARCH'], 'test') === false) {
-     echo '<div class="error">Error: enter a valid regular expression as a search query.</div>';
-     break;
-   }
+      if (preg_match($MYREQUEST['SEARCH'], 'test') === false) {
+          echo '<div class="error">Error: enter a valid regular expression as a search query.</div>';
+          break;
+      }
   }
 
   echo
         '<div class="info"><table cellspacing=0><tbody>',
         '<tr>',
-        '<th>',sortheader('S',$fieldheading,  "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('H','Hits',         "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('Z','Size',         "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('A','Last accessed',"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('M','Last modified',"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('C','Created at',   "&OB=".$MYREQUEST['OB']),'</th>';
+        '<th>',sortheader('S', $fieldheading,  "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('H', 'Hits',         "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('Z', 'Size',         "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('A', 'Last accessed', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('M', 'Last modified', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('C', 'Created at',   "&OB=".$MYREQUEST['OB']),'</th>';
 
-    if($fieldname=='info') {
+    if ($fieldname=='info') {
         $cols+=2;
-         echo '<th>',sortheader('T','Timeout',"&OB=".$MYREQUEST['OB']),'</th>';
+        echo '<th>',sortheader('T', 'Timeout', "&OB=".$MYREQUEST['OB']),'</th>';
     }
-    echo '<th>',sortheader('D','Deleted at',"&OB=".$MYREQUEST['OB']),'</th></tr>';
+    echo '<th>',sortheader('D', 'Deleted at', "&OB=".$MYREQUEST['OB']),'</th></tr>';
 
     // builds list with alpha numeric sortable keys
     //
     $list = array();
-    foreach($cache[$scope_list[$MYREQUEST['SCOPE']]] as $i => $entry) {
-        switch($MYREQUEST['SORT1']) {
-            case 'A': $k=sprintf('%015d-',$entry['access_time']); 	break;
-            case 'H': $k=sprintf('%015d-',$entry['num_hits']); 		break;
-            case 'Z': $k=sprintf('%015d-',$entry['mem_size']); 		break;
-            case 'M': $k=sprintf('%015d-',$entry['mtime']);			break;
-            case 'C': $k=sprintf('%015d-',$entry['creation_time']);	break;
-            case 'T': $k=sprintf('%015d-',$entry['ttl']);			break;
-            case 'D': $k=sprintf('%015d-',$entry['deletion_time']);	break;
-            case 'S': $k='';										break;
+    foreach ($cache[$scope_list[$MYREQUEST['SCOPE']]] as $i => $entry) {
+        switch ($MYREQUEST['SORT1']) {
+            case 'A': $k=sprintf('%015d-', $entry['access_time']);    break;
+            case 'H': $k=sprintf('%015d-', $entry['num_hits']);        break;
+            case 'Z': $k=sprintf('%015d-', $entry['mem_size']);        break;
+            case 'M': $k=sprintf('%015d-', $entry['mtime']);            break;
+            case 'C': $k=sprintf('%015d-', $entry['creation_time']);    break;
+            case 'T': $k=sprintf('%015d-', $entry['ttl']);            break;
+            case 'D': $k=sprintf('%015d-', $entry['deletion_time']);    break;
+            case 'S': $k='';                                        break;
         }
         if (!$AUTHENTICATED) {
             // hide all path entries if not logged in
-            $list[$k.$entry[$fieldname]]=preg_replace('/^.*(\\/|\\\\)/','*hidden*/',$entry);
+            $list[$k.$entry[$fieldname]]=preg_replace('/^.*(\\/|\\\\)/', '*hidden*/', $entry);
         } else {
             $list[$k.$entry[$fieldname]]=$entry;
         }
@@ -1126,48 +1231,47 @@ EOB;
         // sort list
         //
         switch ($MYREQUEST['SORT2']) {
-            case "A":	krsort($list);	break;
-            case "D":	ksort($list);	break;
+            case "A":    krsort($list);    break;
+            case "D":    ksort($list);    break;
         }
 
         // output list
         $i=0;
-        foreach($list as $k => $entry) {
-      if(!$MYREQUEST['SEARCH'] || preg_match($MYREQUEST['SEARCH'], $entry[$fieldname]) != 0) {
-        $field_value = htmlentities(strip_tags($entry[$fieldname],''), ENT_QUOTES, 'UTF-8');
-        echo
+        foreach ($list as $k => $entry) {
+            if (!$MYREQUEST['SEARCH'] || preg_match($MYREQUEST['SEARCH'], $entry[$fieldname]) != 0) {
+                $field_value = htmlentities(strip_tags($entry[$fieldname], ''), ENT_QUOTES, 'UTF-8');
+                echo
           '<tr class=tr-',$i%2,'>',
           "<td class=td-0><a href=\"$MY_SELF&OB=",$MYREQUEST['OB'],"&SH=",md5($entry[$fieldkey]),"\">",$field_value,'</a></td>',
           '<td class="td-n center">',$entry['num_hits'],'</td>',
           '<td class="td-n right">',$entry['mem_size'],'</td>',
-          '<td class="td-n center">',date(DATE_FORMAT,$entry['access_time']),'</td>',
-          '<td class="td-n center">',date(DATE_FORMAT,$entry['mtime']),'</td>',
-          '<td class="td-n center">',date(DATE_FORMAT,$entry['creation_time']),'</td>';
+          '<td class="td-n center">',date(DATE_FORMAT, $entry['access_time']),'</td>',
+          '<td class="td-n center">',date(DATE_FORMAT, $entry['mtime']),'</td>',
+          '<td class="td-n center">',date(DATE_FORMAT, $entry['creation_time']),'</td>';
 
-        if($fieldname=='info') {
-          if($entry['ttl'])
-            echo '<td class="td-n center">'.$entry['ttl'].' seconds</td>';
-          else
-            echo '<td class="td-n center">None</td>';
+                if ($fieldname=='info') {
+                    if ($entry['ttl']) {
+                        echo '<td class="td-n center">'.$entry['ttl'].' seconds</td>';
+                    } else {
+                        echo '<td class="td-n center">None</td>';
+                    }
+                }
+                if ($entry['deletion_time']) {
+                    echo '<td class="td-last center">', date(DATE_FORMAT, $entry['deletion_time']), '</td>';
+                } elseif ($MYREQUEST['OB'] == OB_USER_CACHE) {
+                    echo '<td class="td-last center">';
+                    echo '[<a href="', $MY_SELF, '&OB=', $MYREQUEST['OB'], '&DU=', urlencode($entry[$fieldkey]), '">Delete Now</a>]';
+                    echo '</td>';
+                } else {
+                    echo '<td class="td-last center"> &nbsp; </td>';
+                }
+                echo '</tr>';
+                $i++;
+                if ($i == $MYREQUEST['COUNT']) {
+                    break;
+                }
+            }
         }
-        if ($entry['deletion_time']) {
-
-          echo '<td class="td-last center">', date(DATE_FORMAT,$entry['deletion_time']), '</td>';
-        } else if ($MYREQUEST['OB'] == OB_USER_CACHE) {
-
-          echo '<td class="td-last center">';
-          echo '[<a href="', $MY_SELF, '&OB=', $MYREQUEST['OB'], '&DU=', urlencode($entry[$fieldkey]), '">Delete Now</a>]';
-          echo '</td>';
-        } else {
-          echo '<td class="td-last center"> &nbsp; </td>';
-        }
-        echo '</tr>';
-        $i++;
-        if ($i == $MYREQUEST['COUNT'])
-          break;
-      }
-        }
-
     } else {
         echo '<tr class=tr-0><td class="center" colspan=',$cols,'><i>No data</i></td></tr>';
     }
@@ -1226,26 +1330,27 @@ EOB;
         '</select>',
         ", Group By Dir Level:<select name=AGGR>",
         "<option value='' selected>None</option>";
-        for ($i = 1; $i < 10; $i++)
+        for ($i = 1; $i < 10; $i++) {
             echo "<option value=$i",$MYREQUEST['AGGR']==$i ? " selected":"",">$i</option>";
+        }
         echo '</select>',
         '&nbsp;<input type=submit value="GO!">',
         '</form></div>',
 
         '<div class="info"><table cellspacing=0><tbody>',
         '<tr>',
-        '<th>',sortheader('S','Directory Name',	"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('T','Number of Files',"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('H','Total Hits',	"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('Z','Total Size',	"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('C','Avg. Hits',	"&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('A','Avg. Size',	"&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('S', 'Directory Name',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('T', 'Number of Files', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('H', 'Total Hits',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('Z', 'Total Size',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('C', 'Avg. Hits',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('A', 'Avg. Size',    "&OB=".$MYREQUEST['OB']),'</th>',
         '</tr>';
 
     // builds list with alpha numeric sortable keys
     //
     $tmp = $list = array();
-    foreach($cache[$scope_list[$MYREQUEST['SCOPE']]] as $entry) {
+    foreach ($cache[$scope_list[$MYREQUEST['SCOPE']]] as $entry) {
         $n = dirname($entry['filename']);
         if ($MYREQUEST['AGGR'] > 0) {
             $n = preg_replace("!^(/?(?:[^/\\\\]+[/\\\\]){".($MYREQUEST['AGGR']-1)."}[^/\\\\]*).*!", "$1", $n);
@@ -1259,13 +1364,13 @@ EOB;
     }
 
     foreach ($tmp as $k => $v) {
-        switch($MYREQUEST['SORT1']) {
-            case 'A': $kn=sprintf('%015d-',$v['size'] / $v['ents']);break;
-            case 'T': $kn=sprintf('%015d-',$v['ents']);		break;
-            case 'H': $kn=sprintf('%015d-',$v['hits']);		break;
-            case 'Z': $kn=sprintf('%015d-',$v['size']);		break;
-            case 'C': $kn=sprintf('%015d-',$v['hits'] / $v['ents']);break;
-            case 'S': $kn = $k;					break;
+        switch ($MYREQUEST['SORT1']) {
+            case 'A': $kn=sprintf('%015d-', $v['size'] / $v['ents']);break;
+            case 'T': $kn=sprintf('%015d-', $v['ents']);        break;
+            case 'H': $kn=sprintf('%015d-', $v['hits']);        break;
+            case 'Z': $kn=sprintf('%015d-', $v['size']);        break;
+            case 'C': $kn=sprintf('%015d-', $v['hits'] / $v['ents']);break;
+            case 'S': $kn = $k;                    break;
         }
         $list[$kn.$k] = array($k, $v['ents'], $v['hits'], $v['size']);
     }
@@ -1275,13 +1380,13 @@ EOB;
         // sort list
         //
         switch ($MYREQUEST['SORT2']) {
-            case "A":	krsort($list);	break;
-            case "D":	ksort($list);	break;
+            case "A":    krsort($list);    break;
+            case "D":    ksort($list);    break;
         }
 
         // output list
         $i = 0;
-        foreach($list as $entry) {
+        foreach ($list as $entry) {
             echo
                 '<tr class=tr-',$i%2,'>',
                 "<td class=td-0>",$entry[0],'</a></td>',
@@ -1292,9 +1397,10 @@ EOB;
                 '<td class="td-n center">',round($entry[3] / $entry[1]),'</td>',
                 '</tr>';
 
-            if (++$i == $MYREQUEST['COUNT']) break;
+            if (++$i == $MYREQUEST['COUNT']) {
+                break;
+            }
         }
-
     } else {
         echo '<tr class=tr-0><td class="center" colspan=6><i>No data</i></td></tr>';
     }
@@ -1323,10 +1429,10 @@ case OB_VERSION_CHECK:
         </tr>
 EOB;
   if (defined('PROXY')) {
-    $ctxt = stream_context_create( array( 'http' => array( 'proxy' => PROXY, 'request_fulluri' => True ) ) );
-    $rss = @file_get_contents("http://pecl.php.net/feeds/pkg_apc.rss", False, $ctxt);
+      $ctxt = stream_context_create(array( 'http' => array( 'proxy' => PROXY, 'request_fulluri' => true ) ));
+      $rss = @file_get_contents("http://pecl.php.net/feeds/pkg_apc.rss", false, $ctxt);
   } else {
-    $rss = @file_get_contents("http://pecl.php.net/feeds/pkg_apc.rss");
+      $rss = @file_get_contents("http://pecl.php.net/feeds/pkg_apc.rss");
   }
     if (!$rss) {
         echo '<tr class="td-last center"><td>Unable to fetch version information.</td></tr>';
@@ -1349,13 +1455,14 @@ EOB;
         echo '<tr class="tr-0"><td><h3>Change Log:</h3><br/>';
 
         preg_match_all('!<(title|description)>([^<]+)</\\1>!', $rss, $match);
-        next($match[2]); next($match[2]);
+        next($match[2]);
+        next($match[2]);
 
-        while (list(,$v) = each($match[2])) {
-            list(,$ver) = explode(' ', $v, 2);
+        while (list(, $v) = each($match[2])) {
+            list(, $ver) = explode(' ', $v, 2);
             if ($i < 0 && version_compare($apcversion, $ver, '>=')) {
                 break;
-            } else if (!$i--) {
+            } elseif (!$i--) {
                 break;
             }
             echo "<b><a href=\"http://pecl.php.net/package/APC/$ver\">".htmlspecialchars($v, ENT_QUOTES, 'UTF-8')."</a></b><br><blockquote>";

@@ -20,7 +20,7 @@ if ($dirsToCheck[0] == $dirsToCheck[1]) {
 foreach ($dirsToCheck as $dir) {
     //check this dir and every parent dir (until we hit the base of the drive)
     // or until we hit a dir we can't read
-    while(true) {
+    while (true) {
         //if it's readable, go ahead
         if (@is_readable($dir)) {
             //if the file exists, then we include it, set relevant vars and break out
@@ -30,8 +30,7 @@ foreach ($dirsToCheck as $dir) {
                 //break out of BOTH loops because we found the $envFile
                 break(2);
             }
-        }
-        else {
+        } else {
             //break out of the while loop, we can't read the dir
             break;
         }

@@ -2,24 +2,24 @@
 require_once('FindSSEnvironment.php');
 
 
-define('ADMIN_USERNAME',SS_DEFAULT_ADMIN_USERNAME); 			// Admin Username
-define('ADMIN_PASSWORD',SS_DEFAULT_ADMIN_PASSWORD);  	// Admin Password - CHANGE THIS TO ENABLE!!!
+define('ADMIN_USERNAME', SS_DEFAULT_ADMIN_USERNAME);            // Admin Username
+define('ADMIN_PASSWORD', SS_DEFAULT_ADMIN_PASSWORD);    // Admin Password - CHANGE THIS TO ENABLE!!!
 
 ///////////////// Password protect ////////////////////////////////////////////////////////////////
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
            $_SERVER['PHP_AUTH_USER'] != ADMIN_USERNAME ||$_SERVER['PHP_AUTH_PW'] != ADMIN_PASSWORD) {
-            Header("WWW-Authenticate: Basic realm=\"Memcache Login\"");
-            Header("HTTP/1.0 401 Unauthorized");
+    Header("WWW-Authenticate: Basic realm=\"Memcache Login\"");
+    Header("HTTP/1.0 401 Unauthorized");
 
-            echo <<<EOB
+    echo <<<EOB
                 <html><body>
                 <h1>Rejected!</h1>
                 <big>Wrong Username or Password!</big>
                 </body></html>
 EOB;
-            exit;
+    exit;
 }
-define('THOUSAND_SEPARATOR',true);
+define('THOUSAND_SEPARATOR', true);
 
 if (!extension_loaded('Zend OPcache')) {
     echo '<div style="background-color: #F2DEDE; color: #B94A48; padding: 1em;">You do not have the Zend OPcache extension loaded, sample data is being shown instead.</div>';
@@ -129,7 +129,9 @@ class OpCacheDataModel
 
         $basename = '';
         while (true) {
-            if (count($this->_d3Scripts) !=1) break;
+            if (count($this->_d3Scripts) !=1) {
+                break;
+            }
             $basename .= DIRECTORY_SEPARATOR . key($this->_d3Scripts);
             $this->_d3Scripts = reset($this->_d3Scripts);
         }
@@ -288,11 +290,13 @@ class OpCacheDataModel
     // Borrowed from Laravel
     private function _arrayPset(&$array, $key, $value)
     {
-        if (is_null($key)) return $array = $value;
+        if (is_null($key)) {
+            return $array = $value;
+        }
         $keys = explode(DIRECTORY_SEPARATOR, ltrim($key, DIRECTORY_SEPARATOR));
         while (count($keys) > 1) {
             $key = array_shift($keys);
-            if ( ! isset($array[$key]) || ! is_array($array[$key])) {
+            if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = array();
             }
             $array =& $array[$key];
@@ -300,7 +304,6 @@ class OpCacheDataModel
         $array[array_shift($keys)] = $value;
         return $array;
     }
-
 }
 
 $dataModel = new OpCacheDataModel();
