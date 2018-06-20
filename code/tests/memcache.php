@@ -650,9 +650,9 @@ if (isset($_GET['IMG'])) {
     $image = imagecreate($size+50, $size+10);
 
     $col_white = imagecolorallocate($image, 0xFF, 0xFF, 0xFF);
-    $col_red   = imagecolorallocate($image, 0xD0, 0x60,  0x30);
+    $col_red   = imagecolorallocate($image, 0xD0, 0x60, 0x30);
     $col_green = imagecolorallocate($image, 0x60, 0xF0, 0x60);
-    $col_black = imagecolorallocate($image,   0,   0,   0);
+    $col_black = imagecolorallocate($image, 0, 0, 0);
 
     imagecolortransparent($image, $col_white);
 
@@ -838,8 +838,8 @@ EOB;
                 if ((isset($_GET['dumpslab']) && $_GET['dumpslab']==$slabId) &&  (isset($_GET['server']) && $_GET['server']==array_search($server, $MEMCACHE_SERVERS))) {
                     echo "<br/><b>Items: item</b><br/>";
                     $items = dumpCacheSlab($server, $slabId, $slab['number']);
-                        // maybe someone likes to do a pagination here :)
-                        $i=1;
+                    // maybe someone likes to do a pagination here :)
+                    $i=1;
                     foreach ($items['ITEM'] as $itemKey=>$itemInfo) {
                         $itemInfo = trim($itemInfo, '[ ]');
 

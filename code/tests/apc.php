@@ -420,9 +420,9 @@ if (isset($MYREQUEST['IMG'])) {
     }
 
     $col_white = imagecolorallocate($image, 0xFF, 0xFF, 0xFF);
-    $col_red   = imagecolorallocate($image, 0xD0, 0x60,  0x30);
+    $col_red   = imagecolorallocate($image, 0xD0, 0x60, 0x30);
     $col_green = imagecolorallocate($image, 0x60, 0xF0, 0x60);
-    $col_black = imagecolorallocate($image,   0,   0,   0);
+    $col_black = imagecolorallocate($image, 0, 0, 0);
     imagecolortransparent($image, $col_white);
 
     switch ($MYREQUEST['IMG']) {
@@ -1013,10 +1013,10 @@ EOB;
                 ++$nseg;
             }
             $ptr = $block['offset'] + $block['size'];
-                        /* Only consider blocks <5M for the fragmentation % */
-                        if ($block['size']<(5*1024*1024)) {
-                            $fragsize+=$block['size'];
-                        }
+            /* Only consider blocks <5M for the fragmentation % */
+            if ($block['size']<(5*1024*1024)) {
+                $fragsize+=$block['size'];
+            }
             $freetotal+=$block['size'];
         }
         $freeseg += count($mem['block_lists'][$i]);
@@ -1076,6 +1076,7 @@ case OB_USER_CACHE:
 // -----------------------------------------------
 // System Cache Entries
 // -----------------------------------------------
+// no break
 case OB_SYS_CACHE:
     if (!isset($fieldname)) {
         $fieldname='filename';
@@ -1180,8 +1181,8 @@ EOB;
 
   if (isset($MYREQUEST['SEARCH'])) {
       // Don't use preg_quote because we want the user to be able to specify a
-   // regular expression subpattern.
-   $MYREQUEST['SEARCH'] = '/'.str_replace('/', '\\/', $MYREQUEST['SEARCH']).'/i';
+      // regular expression subpattern.
+      $MYREQUEST['SEARCH'] = '/'.str_replace('/', '\\/', $MYREQUEST['SEARCH']).'/i';
       if (preg_match($MYREQUEST['SEARCH'], 'test') === false) {
           echo '<div class="error">Error: enter a valid regular expression as a search query.</div>';
           break;
@@ -1191,12 +1192,12 @@ EOB;
   echo
         '<div class="info"><table cellspacing=0><tbody>',
         '<tr>',
-        '<th>',sortheader('S', $fieldheading,  "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('H', 'Hits',         "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('Z', 'Size',         "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('S', $fieldheading, "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('H', 'Hits', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('Z', 'Size', "&OB=".$MYREQUEST['OB']),'</th>',
         '<th>',sortheader('A', 'Last accessed', "&OB=".$MYREQUEST['OB']),'</th>',
         '<th>',sortheader('M', 'Last modified', "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('C', 'Created at',   "&OB=".$MYREQUEST['OB']),'</th>';
+        '<th>',sortheader('C', 'Created at', "&OB=".$MYREQUEST['OB']),'</th>';
 
     if ($fieldname=='info') {
         $cols+=2;
@@ -1339,12 +1340,12 @@ EOB;
 
         '<div class="info"><table cellspacing=0><tbody>',
         '<tr>',
-        '<th>',sortheader('S', 'Directory Name',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('S', 'Directory Name', "&OB=".$MYREQUEST['OB']),'</th>',
         '<th>',sortheader('T', 'Number of Files', "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('H', 'Total Hits',    "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('Z', 'Total Size',    "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('C', 'Avg. Hits',    "&OB=".$MYREQUEST['OB']),'</th>',
-        '<th>',sortheader('A', 'Avg. Size',    "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('H', 'Total Hits', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('Z', 'Total Size', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('C', 'Avg. Hits', "&OB=".$MYREQUEST['OB']),'</th>',
+        '<th>',sortheader('A', 'Avg. Size', "&OB=".$MYREQUEST['OB']),'</th>',
         '</tr>';
 
     // builds list with alpha numeric sortable keys
